@@ -6,6 +6,7 @@ Summary:        System wide profiler
 Url:            http://oprofile.sf.net
 Group:          Base/Tools
 Source:         %{name}-%{version}.tar.gz
+Source1001: 	oprofile.manifest
 BuildRequires:  binutils-devel
 BuildRequires:  pkgconfig(popt)
 Requires:       which
@@ -39,6 +40,7 @@ agent library.
 
 %prep
 %setup -q
+cp %{SOURCE1001} .
 
 %build
 %configure --enable-gui=no
@@ -69,6 +71,7 @@ exit 0
 %docs_package
 
 %files
+%manifest %{name}.manifest
 %license COPYING
 %{_bindir}/ophelp
 %{_bindir}/opimport
@@ -84,8 +87,10 @@ exit 0
 %{_datadir}/oprofile
 
 %files devel
+%manifest %{name}.manifest
 %{_includedir}/opagent.h
 
 %files jit
+%manifest %{name}.manifest
 %config %{_sysconfdir}/ld.so.conf.d/*
 %{_libdir}/oprofile
