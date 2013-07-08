@@ -1,0 +1,8 @@
+Change-Id: Ic17ba13925827d6d098185dc07ed3f06801ea76b
+Code-Review+2: Ryan Ware <ware@linux.intel.com>
+Verified+1: Ryan Ware <ware@linux.intel.com>
+Submitted-by: Ryan Ware <ware@linux.intel.com>
+Submitted-at: Mon, 08 Jul 2013 09:37:17 -0700
+Reviewed-on: https://review.tizen.org/gerrit/5233
+Project: platform/upstream/oprofile
+Branch: refs/heads/tizen
