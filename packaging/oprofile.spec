@@ -76,14 +76,13 @@ exit 0
 %{_bindir}/ophelp
 %{_bindir}/opimport
 %{_bindir}/opannotate
-%{_bindir}/opcontrol
 %{_bindir}/opgprof
 %{_bindir}/opreport
-%{_bindir}/oprofiled
 %{_bindir}/oparchive
 %{_bindir}/opjitconv
 %{_bindir}/op-check-perfevents
 %{_bindir}/operf
+%{_bindir}/ocount
 %{_datadir}/oprofile
 
 %files devel
