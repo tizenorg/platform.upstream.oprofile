@@ -34,18 +34,20 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-@BUILD_FOR_PERF_EVENT_TRUE@am__append_1 = operf.1
+@BUILD_FOR_PERF_EVENT_TRUE@am__append_1 = operf.1 \
+@BUILD_FOR_PERF_EVENT_TRUE@			ocount.1
+
 subdir = doc
 DIST_COMMON = $(dist_html_DATA) $(srcdir)/Makefile.am \
-	$(srcdir)/Makefile.in $(srcdir)/opannotate.1.in \
-	$(srcdir)/oparchive.1.in $(srcdir)/opcontrol.1.in \
-	$(srcdir)/operf.1.in $(srcdir)/opgprof.1.in \
-	$(srcdir)/ophelp.1.in $(srcdir)/opimport.1.in \
-	$(srcdir)/opreport.1.in $(srcdir)/oprofile.1.in
+	$(srcdir)/Makefile.in $(srcdir)/ocount.1.in \
+	$(srcdir)/op-check-perfevents.1.in $(srcdir)/opannotate.1.in \
+	$(srcdir)/oparchive.1.in $(srcdir)/operf.1.in \
+	$(srcdir)/opgprof.1.in $(srcdir)/ophelp.1.in \
+	$(srcdir)/opimport.1.in $(srcdir)/opreport.1.in \
+	$(srcdir)/oprofile.1.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/binutils.m4 \
 	$(top_srcdir)/m4/builtinexpect.m4 \
-	$(top_srcdir)/m4/cellspubfdsupport.m4 \
 	$(top_srcdir)/m4/compileroption.m4 \
 	$(top_srcdir)/m4/copyifchange.m4 $(top_srcdir)/m4/docbook.m4 \
 	$(top_srcdir)/m4/extradirs.m4 \
@@ -54,15 +56,16 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/binutils.m4 \
 	$(top_srcdir)/m4/ltversion.m4 $(top_srcdir)/m4/lt~obsolete.m4 \
 	$(top_srcdir)/m4/mallocattribute.m4 \
 	$(top_srcdir)/m4/poptconst.m4 \
-	$(top_srcdir)/m4/precompiledheader.m4 $(top_srcdir)/m4/qt.m4 \
+	$(top_srcdir)/m4/precompiledheader.m4 \
 	$(top_srcdir)/m4/sstream.m4 $(top_srcdir)/m4/typedef.m4 \
 	$(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/config.h
-CONFIG_CLEAN_FILES = oprofile.1 opcontrol.1 ophelp.1 opreport.1 \
-	opannotate.1 opgprof.1 oparchive.1 opimport.1 operf.1
+CONFIG_CLEAN_FILES = oprofile.1 ophelp.1 op-check-perfevents.1 \
+	opreport.1 opannotate.1 opgprof.1 oparchive.1 opimport.1 \
+	operf.1 ocount.1
 CONFIG_CLEAN_VPATH_FILES =
 SOURCES =
 DIST_SOURCES =
@@ -144,7 +147,6 @@ LN_S = @LN_S@
 LTLIBOBJS = @LTLIBOBJS@
 MAKEINFO = @MAKEINFO@
 MKDIR_P = @MKDIR_P@
-MOC = @MOC@
 NM = @NM@
 NMEDIT = @NMEDIT@
 OBJDUMP = @OBJDUMP@
@@ -168,20 +170,13 @@ PFM_LIB = @PFM_LIB@
 PKG_CONFIG = @PKG_CONFIG@
 POPT_LIBS = @POPT_LIBS@
 PTRDIFF_T_TYPE = @PTRDIFF_T_TYPE@
-QT_CFLAGS = @QT_CFLAGS@
-QT_INCLUDES = @QT_INCLUDES@
-QT_LDFLAGS = @QT_LDFLAGS@
-QT_LIB = @QT_LIB@
-QT_LIBS = @QT_LIBS@
-QT_VERSION = @QT_VERSION@
 RANLIB = @RANLIB@
+RT_LIB = @RT_LIB@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 SIZE_T_TYPE = @SIZE_T_TYPE@
 STRIP = @STRIP@
-UIC = @UIC@
-UIChelp = @UIChelp@
 VERSION = @VERSION@
 XMKMF = @XMKMF@
 XML_CATALOG = @XML_CATALOG@
@@ -251,9 +246,9 @@ XHTML_STYLESHEET = $(srcdir)/xsl/xhtml.xsl
 CHUNK_XHTML_STYLESHEET = $(srcdir)/xsl/xhtml-chunk.xsl
 XML_CATALOG_FILES = xsl/catalog.xml
 STYLESHEETS = $(CHUNK_XHTML_STYLESHEET) $(srcdir)/xsl/xhtml-common.xsl
-man_MANS = oprofile.1 opcontrol.1 opreport.1 opannotate.1 opgprof.1 \
-	ophelp.1 oparchive.1 opimport.1 $(am__append_1)
-dist_html_DATA = oprofile.html internals.html opreport.xsd op-jit-devel.html
+man_MANS = oprofile.1 opreport.1 opannotate.1 opgprof.1 ophelp.1 \
+	op-check-perfevents.1 oparchive.1 opimport.1 $(am__append_1)
+dist_html_DATA = oprofile.html internals.html opreport.xsd ophelp.xsd op-jit-devel.html
 EXTRA_DIST = \
 	oprofile.1 \
 	oprofile.1.in \
@@ -303,9 +298,9 @@ $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 $(am__aclocal_m4_deps):
 oprofile.1: $(top_builddir)/config.status $(srcdir)/oprofile.1.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
-opcontrol.1: $(top_builddir)/config.status $(srcdir)/opcontrol.1.in
-	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 ophelp.1: $(top_builddir)/config.status $(srcdir)/ophelp.1.in
+	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
+op-check-perfevents.1: $(top_builddir)/config.status $(srcdir)/op-check-perfevents.1.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 opreport.1: $(top_builddir)/config.status $(srcdir)/opreport.1.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
@@ -318,6 +313,8 @@ oparchive.1: $(top_builddir)/config.status $(srcdir)/oparchive.1.in
 opimport.1: $(top_builddir)/config.status $(srcdir)/opimport.1.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 operf.1: $(top_builddir)/config.status $(srcdir)/operf.1.in
+	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
+ocount.1: $(top_builddir)/config.status $(srcdir)/ocount.1.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 
 mostlyclean-libtool:

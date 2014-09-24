@@ -17,11 +17,17 @@
 #include "file_manip.h"
 #include "cverb.h"
 #include "locate_images.h"
+#include "op_libiberty.h"
+#include "op_exception.h"
 
+#include <unistd.h>
+#include <errno.h>
+#include <elf.h>
 #include <cstdlib>
 #include <cstring>
 #include <cassert>
 #include <iostream>
+#include <sstream>
 #include <fstream>
 #include <sstream>
 #include <string>
@@ -33,6 +39,11 @@ using namespace std;
 extern verbose vbfd;
 
 namespace {
+
+#ifndef NT_GNU_BUILD_ID
+#define NT_GNU_BUILD_ID 3
+#endif
+static size_t build_id_size;
 
 
 void check_format(string const & file, bfd ** ibfd)
@@ -71,10 +82,103 @@ bool separate_debug_file_exists(string & name, unsigned long const crc,
 				      reinterpret_cast<unsigned char *>(&buffer[0]),
 				      file.gcount());
 	}
-	cverb << vbfd << " with crc32 = " << hex << file_crc << endl;
+	ostringstream message;
+	message << " with crc32 = " << hex << file_crc << endl;
+	cverb << vbfd << message.str();
 	return crc == file_crc;
 }
 
+static bool find_debuginfo_file_by_buildid(unsigned char * buildid, string & debug_filename)
+{
+	size_t build_id_fname_size = strlen (DEBUGDIR) + (sizeof "/.build-id/" - 1) + 1
+			+ (2 * build_id_size) + (sizeof ".debug" - 1) + 1;
+	char * buildid_symlink = (char *) xmalloc(build_id_fname_size);
+	char * sptr = buildid_symlink;
+	unsigned char * bptr = buildid;
+	bool retval = false;
+	size_t build_id_segment_len = strlen("/.build-id/");
+
+
+	memcpy(sptr, DEBUGDIR, strlen(DEBUGDIR));
+	sptr += strlen(DEBUGDIR);
+	memcpy(sptr, "/.build-id/", build_id_segment_len);
+	sptr += build_id_segment_len;
+	sptr += sprintf(sptr, "%02x", (unsigned) *bptr++);
+	*sptr++ = '/';
+	for (int i = build_id_size - 1; i > 0; i--)
+		sptr += sprintf(sptr, "%02x", (unsigned) *bptr++);
+
+	strcpy(sptr, ".debug");
+
+	if (access (buildid_symlink, F_OK) == 0) {
+		debug_filename = op_realpath (buildid_symlink);
+		if (debug_filename.compare(buildid_symlink)) {
+			retval = true;
+			cverb << vbfd << "Using build-id symlink" << endl;
+		}
+	}
+	free(buildid_symlink);
+	if (!retval)
+		cverb << vbfd << "build-id file not found; falling back to CRC method." << endl;
+
+	return retval;
+}
+
+static bool get_build_id(bfd * ibfd, unsigned char * build_id)
+{
+	Elf32_Nhdr op_note_hdr;
+	asection * sect;
+	char * ptr;
+	bool retval = false;
+
+	cverb << vbfd << "fetching build-id from runtime binary ...";
+	if (!(sect = bfd_get_section_by_name(ibfd, ".note.gnu.build-id"))) {
+		if (!(sect = bfd_get_section_by_name(ibfd, ".notes"))) {
+			cverb << vbfd << " No build-id section found" << endl;
+			return false;
+		}
+	}
+
+	bfd_size_type buildid_sect_size = bfd_section_size(ibfd, sect);
+	char * contents = (char *) xmalloc(buildid_sect_size);
+	errno = 0;
+	if (!bfd_get_section_contents(ibfd, sect,
+				 reinterpret_cast<unsigned char *>(contents),
+				 static_cast<file_ptr>(0), buildid_sect_size)) {
+		string msg = "bfd_get_section_contents:get_build_id";
+		if (errno) {
+			msg += ": ";
+			msg += strerror(errno);
+		}
+		throw op_fatal_error(msg);
+	}
+
+	ptr = contents;
+	while (ptr < (contents + buildid_sect_size)) {
+		op_note_hdr.n_namesz = bfd_get_32(ibfd,
+		                                  reinterpret_cast<bfd_byte *>(contents));
+		op_note_hdr.n_descsz = bfd_get_32(ibfd,
+		                                  reinterpret_cast<bfd_byte *>(contents + 4));
+		op_note_hdr.n_type = bfd_get_32(ibfd,
+		                                reinterpret_cast<bfd_byte *>(contents + 8));
+		ptr += sizeof(op_note_hdr);
+		if ((op_note_hdr.n_type == NT_GNU_BUILD_ID) &&
+				(op_note_hdr.n_namesz == sizeof("GNU")) &&
+				(strcmp("GNU", ptr ) == 0)) {
+			build_id_size = op_note_hdr.n_descsz;
+			memcpy(build_id, ptr + op_note_hdr.n_namesz, build_id_size);
+			retval = true;
+			cverb << vbfd << "Found build-id" << endl;
+			break;
+		}
+		ptr += op_note_hdr.n_namesz + op_note_hdr.n_descsz;
+	}
+	if (!retval)
+		cverb << vbfd << " No build-id found" << endl;
+	free(contents);
+
+	return retval;
+}
 
 bool get_debug_link_info(bfd * ibfd, string & filename, unsigned long & crc32)
 {
@@ -87,15 +191,19 @@ bool get_debug_link_info(bfd * ibfd, string & filename, unsigned long & crc32)
 		return false;
 	
 	bfd_size_type debuglink_size = bfd_section_size(ibfd, sect);  
-	char contents[debuglink_size];
+	char * contents = (char *) xmalloc(debuglink_size);
 	cverb << vbfd
 	      << ".gnu_debuglink section has size " << debuglink_size << endl;
 	
 	if (!bfd_get_section_contents(ibfd, sect, 
 				 reinterpret_cast<unsigned char *>(contents), 
 				 static_cast<file_ptr>(0), debuglink_size)) {
-		bfd_perror("bfd_get_section_contents:get_debug:");
-		exit(2);
+		string msg = "bfd_get_section_contents:get_debug";
+		if (errno) {
+			msg += ": ";
+			msg += strerror(errno);
+		}
+		throw op_fatal_error(msg);
 	}
 	
 	/* CRC value is stored after the filename, aligned up to 4 bytes. */
@@ -107,6 +215,7 @@ bool get_debug_link_info(bfd * ibfd, string & filename, unsigned long & crc32)
 			       reinterpret_cast<bfd_byte *>(contents + crc_offset));
 	filename = string(contents, filename_len);
 	cverb << vbfd << ".gnu_debuglink filename is " << filename << endl;
+	free(contents);
 	return true;
 }
 
@@ -298,10 +407,25 @@ bool find_separate_debug_file(bfd * ibfd, string const & filepath_in,
 {
 	string filepath(filepath_in);
 	string basename;
-	unsigned long crc32;
+	unsigned long crc32 = 0;
+	// The readelf program uses a char [64], so that's what we'll use.
+	// To my knowledge, the build-id should not be bigger than 20 chars.
+	unsigned char buildid[64];
 	
+	if (get_build_id(ibfd, buildid) &&
+	   find_debuginfo_file_by_buildid(buildid, debug_filename))
+		return true;
+
 	if (!get_debug_link_info(ibfd, basename, crc32))
 		return false;
+
+	/* Use old method of finding debuginfo file by comparing runtime binary's
+	 * CRC with the CRC we calculate from the debuginfo file's contents.
+	 * NOTE:  This method breaks on systems where "MiniDebugInfo" is used
+	 * since the CRC stored in the runtime binary won't match the compressed
+	 * debuginfo file's CRC.  But in practice, we shouldn't ever run into such
+	 * a scenario since the build-id should always be available.
+	 */
 
 	// Work out the image file's directory prefix
 	string filedir = op_dirname(filepath);
@@ -313,8 +437,10 @@ bool find_separate_debug_file(bfd * ibfd, string const & filepath_in,
 	string second_try(DEBUGDIR + filedir + basename);
 	string third_try(filedir + basename);
 
-	cverb << vbfd << "looking for debugging file " << basename 
-	      << " with crc32 = " << hex << crc32 << endl;
+	ostringstream message;
+	message << "looking for debugging file " << basename
+	        << " with crc32 = " << hex << crc32 << endl;
+	cverb << vbfd << message.str();
 
 	if (separate_debug_file_exists(first_try, crc32, extra)) 
 		debug_filename = first_try; 
@@ -349,7 +475,8 @@ bool interesting_symbol(asymbol * sym)
 	/* ARM assembler internal mapping symbols aren't interesting */
 	if ((strcmp("$a", sym->name) == 0) ||
 	    (strcmp("$t", sym->name) == 0) ||
-	    (strcmp("$d", sym->name) == 0))
+	    (strcmp("$d", sym->name) == 0) ||
+	    (strcmp("$x", sym->name) == 0))
 		return false;
 
 	// C++ exception stuff
@@ -507,10 +634,14 @@ void bfd_info::translate_debuginfo_syms(asymbol ** dbg_syms, long nr_dbg_syms)
 
 bool bfd_info::get_synth_symbols()
 {
-	extern const bfd_target bfd_elf64_powerpc_vec;
-	extern const bfd_target bfd_elf64_powerpcle_vec;
-	bool is_elf64_powerpc_target = (abfd->xvec == &bfd_elf64_powerpc_vec)
-		|| (abfd->xvec == &bfd_elf64_powerpcle_vec);
+	const char* targname = bfd_get_target(abfd);
+	// Match elf64-powerpc and elf64-powerpc-freebsd, but not
+	// elf64-powerpcle.  elf64-powerpcle is a different ABI without
+	// function descriptors, so we don't need the synthetic
+	// symbols to have function code marked by a symbol.
+	bool is_elf64_powerpc_target = (!strncmp(targname, "elf64-powerpc", 13)
+					&& (targname[13] == 0
+					    || targname[13] == '-'));
 
 	if (!is_elf64_powerpc_target)
 		return false;
@@ -609,8 +740,10 @@ void bfd_info::get_symbols()
 	if (bfd_get_file_flags(abfd) & HAS_SYMS)
 		nr_syms = bfd_get_symtab_upper_bound(abfd);
 
-	cverb << vbfd << "bfd_get_symtab_upper_bound: " << dec
-	      << nr_syms << hex << endl;
+	ostringstream message;
+	message << "bfd_get_symtab_upper_bound: " << dec
+	        << nr_syms << hex << endl;
+	cverb << vbfd << message.str();
 
 	nr_syms /= sizeof(asymbol *);
 
@@ -622,8 +755,10 @@ void bfd_info::get_symbols()
 	} else {
 		syms.reset(new asymbol *[nr_syms]);
 		nr_syms = bfd_canonicalize_symtab(abfd, syms.get());
-		cverb << vbfd << "bfd_canonicalize_symtab: " << dec
-		      << nr_syms << hex << endl;
+		ostringstream message;
+		message << "bfd_canonicalize_symtab: " << dec
+		        << nr_syms << hex << endl;
+		cverb << vbfd << message.str();
 	}
 }
 

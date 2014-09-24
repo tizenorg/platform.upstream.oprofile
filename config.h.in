@@ -3,9 +3,6 @@
 /* whether popt prototype takes a const char ** */
 #undef CONST_POPT
 
-/* Defined if you have the version of bfd_openr_iovec with 7 parameters */
-#undef HAVE_BFD_OPENR_IOVEC_WITH_7PARMS
-
 /* Define to 1 if you have the declaration of `basename', and to 0 if you
    don't. */
 #undef HAVE_DECL_BASENAME
@@ -39,6 +36,12 @@
 
 /* Kernel support for perf_events exists */
 #undef HAVE_PERF_EVENTS
+
+/* PERF_RECORD_MISC_GUEST_KERNEL is defined in perf_event.h */
+#undef HAVE_PERF_GUEST_MACROS
+
+/* precise_ip is defined in perf_event.h */
+#undef HAVE_PERF_PRECISE_IP
 
 /* Define to 1 if you have the `sched_setaffinity' function. */
 #undef HAVE_SCHED_SETAFFINITY

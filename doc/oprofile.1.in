@@ -4,11 +4,6 @@
 oprofile \- a system-wide profiler
 .SH SYNOPSIS
 .br
-.B opcontrol
-[
-.I options
-]
-.br
 .B opreport
 [
 .I options
@@ -45,9 +40,6 @@ For a gentle guide to using OProfile, please read the HTML documentation
 listed in SEE ALSO.
 .br
 .SH OPCONTROL
-.B opcontrol
-is used for starting and stopping the OProfile daemon, and providing set-up
-parameters.
 .SH OPREPORT
 .B opreport
 gives image and symbol-based profile summaries for the whole system or
@@ -143,26 +135,26 @@ tgid: to restrict the results to particular threads within a process.
 This is only useful when using per-process profile separation.
 
 .SH ENVIRONMENT
-No special environment variables are recognised by oprofile.
+No special environment variables are recognized by oprofile.
 
 .SH FILES
 .TP
-.I $HOME/.oprofile/
-Configuration files
+.I @prefix@/share/doc/oprofile/oprofile.html
+OProfile user guide.
 .TP
-.I /root/.oprofile/daemonrc
-Configuration file for opcontrol
+.I @prefix@/share/doc/oprofile/opreport.xsd
+Schema file for opreport XML output.
+.TP
+.I @prefix@/share/doc/oprofile/ophelp.xsd
+Schema file for ophelp XML output.
 .TP
 .I @prefix@/share/oprofile/
 Event description files used by OProfile.
 .TP
-.I /var/lib/oprofile/samples/oprofiled.log
-The user-space daemon logfile.
+.I <session-dir>/samples/operf.log
+The profiler log file.
 .TP
-.I /dev/oprofile
-The device filesystem for communication with the Linux kernel module. 
-.TP
-.I /var/lib/oprofile/samples/
+.I <session-dir>/samples/current
 The location of the generated sample files.
 
 .SH VERSION
@@ -171,13 +163,11 @@ This man page is current for @PACKAGE@-@VERSION@.
 
 .SH SEE ALSO
 .BR @OP_DOCDIR@,
-.BR opcontrol(1),
 .BR opreport(1),
 .BR opannotate(1),
 .BR oparchive(1),
 .BR opgprof(1),
 .BR gprof(1),
-.BR readprofile(1),
 .BR "CPU vendor architecture manuals"
 
 .SH COPYRIGHT
