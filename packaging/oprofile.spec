@@ -1,5 +1,5 @@
 Name:           oprofile
-Version:        0.9.8
+Version:        1.0.0
 Release:        0
 License:        GPL-2.0+ and LGPL-2.1+
 Summary:        System wide profiler
@@ -9,8 +9,6 @@ Source:         %{name}-%{version}.tar.gz
 Source1001: 	oprofile.manifest
 BuildRequires:  binutils-devel
 BuildRequires:  pkgconfig(popt)
-Requires:       which
-Requires(pre): pwdutils
 
 %description
 OProfile is a profiling system for systems running Linux. The
@@ -54,13 +52,6 @@ echo "%{_libdir}/oprofile" > %{buildroot}%{_sysconfdir}/ld.so.conf.d/oprofile-%{
 
 rm -rf %{buildroot}%{_datadir}/doc
 
-%pre
-getent group oprofile >/dev/null || groupadd -r -g 16 oprofile
-getent passwd oprofile >/dev/null || \
-useradd -g oprofile -d /var/lib/oprofile -M -r -u 16 -s /sbin/nologin \
-    -c "Special user account to be used by OProfile" oprofile
-exit 0
-
 %postun
 # do not try to remove existing oprofile user or group
 
@@ -76,14 +67,13 @@ exit 0
 %{_bindir}/ophelp
 %{_bindir}/opimport
 %{_bindir}/opannotate
-%{_bindir}/opcontrol
 %{_bindir}/opgprof
 %{_bindir}/opreport
-%{_bindir}/oprofiled
 %{_bindir}/oparchive
 %{_bindir}/opjitconv
 %{_bindir}/op-check-perfevents
 %{_bindir}/operf
+%{_bindir}/ocount
 %{_datadir}/oprofile
 
 %files devel
