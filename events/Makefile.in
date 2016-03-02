@@ -38,7 +38,6 @@ DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/binutils.m4 \
 	$(top_srcdir)/m4/builtinexpect.m4 \
-	$(top_srcdir)/m4/cellspubfdsupport.m4 \
 	$(top_srcdir)/m4/compileroption.m4 \
 	$(top_srcdir)/m4/copyifchange.m4 $(top_srcdir)/m4/docbook.m4 \
 	$(top_srcdir)/m4/extradirs.m4 \
@@ -47,7 +46,7 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/binutils.m4 \
 	$(top_srcdir)/m4/ltversion.m4 $(top_srcdir)/m4/lt~obsolete.m4 \
 	$(top_srcdir)/m4/mallocattribute.m4 \
 	$(top_srcdir)/m4/poptconst.m4 \
-	$(top_srcdir)/m4/precompiledheader.m4 $(top_srcdir)/m4/qt.m4 \
+	$(top_srcdir)/m4/precompiledheader.m4 \
 	$(top_srcdir)/m4/sstream.m4 $(top_srcdir)/m4/typedef.m4 \
 	$(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -110,7 +109,6 @@ LN_S = @LN_S@
 LTLIBOBJS = @LTLIBOBJS@
 MAKEINFO = @MAKEINFO@
 MKDIR_P = @MKDIR_P@
-MOC = @MOC@
 NM = @NM@
 NMEDIT = @NMEDIT@
 OBJDUMP = @OBJDUMP@
@@ -134,20 +132,13 @@ PFM_LIB = @PFM_LIB@
 PKG_CONFIG = @PKG_CONFIG@
 POPT_LIBS = @POPT_LIBS@
 PTRDIFF_T_TYPE = @PTRDIFF_T_TYPE@
-QT_CFLAGS = @QT_CFLAGS@
-QT_INCLUDES = @QT_INCLUDES@
-QT_LDFLAGS = @QT_LDFLAGS@
-QT_LIB = @QT_LIB@
-QT_LIBS = @QT_LIBS@
-QT_VERSION = @QT_VERSION@
 RANLIB = @RANLIB@
+RT_LIB = @RT_LIB@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 SIZE_T_TYPE = @SIZE_T_TYPE@
 STRIP = @STRIP@
-UIC = @UIC@
-UIChelp = @UIChelp@
 VERSION = @VERSION@
 XMKMF = @XMKMF@
 XML_CATALOG = @XML_CATALOG@
@@ -212,11 +203,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 topdir = @topdir@
 event_files = \
-	alpha/ev4/events alpha/ev4/unit_masks \
-	alpha/ev5/events alpha/ev5/unit_masks \
 	alpha/ev67/events alpha/ev67/unit_masks \
-	alpha/ev6/events alpha/ev6/unit_masks \
-	alpha/pca56/events alpha/pca56/unit_masks \
 	i386/athlon/events i386/athlon/unit_masks \
 	i386/core_2/events i386/core_2/unit_masks \
 	i386/p4/events i386/p4-ht/events \
@@ -233,27 +220,26 @@ event_files = \
 	i386/westmere/events i386/westmere/unit_masks \
 	i386/sandybridge/events i386/sandybridge/unit_masks \
 	i386/ivybridge/events i386/ivybridge/unit_masks \
-	ia64/ia64/events ia64/ia64/unit_masks \
-	ia64/itanium2/events ia64/itanium2/unit_masks \
-	ia64/itanium/events ia64/itanium/unit_masks \
+	i386/haswell/events i386/haswell/unit_masks \
+	i386/broadwell/events i386/broadwell/unit_masks \
+	i386/silvermont/events i386/silvermont/unit_masks \
+	ppc64/architected_events_v1/events ppc64/architected_events_v1/unit_masks \
 	ppc64/power4/events ppc64/power4/event_mappings ppc64/power4/unit_masks \
 	ppc64/power5/events ppc64/power5/event_mappings ppc64/power5/unit_masks \
 	ppc64/power5+/events ppc64/power5+/event_mappings ppc64/power5+/unit_masks \
 	ppc64/power5++/events ppc64/power5++/event_mappings ppc64/power5++/unit_masks \
 	ppc64/power6/events ppc64/power6/event_mappings ppc64/power6/unit_masks \
 	ppc64/power7/events ppc64/power7/event_mappings ppc64/power7/unit_masks \
+	ppc64/power8/events ppc64/power8/unit_masks \
 	ppc64/970/events ppc64/970/event_mappings ppc64/970/unit_masks \
 	ppc64/970MP/events ppc64/970MP/event_mappings ppc64/970MP/unit_masks \
-	ppc64/ibm-compat-v1/events ppc64/ibm-compat-v1/event_mappings ppc64/ibm-compat-v1/unit_masks \
-	ppc64/pa6t/events ppc64/pa6t/event_mappings ppc64/pa6t/unit_masks \
-	ppc64/cell-be/events ppc64/cell-be/unit_masks \
-	rtc/events rtc/unit_masks \
 	x86-64/hammer/events x86-64/hammer/unit_masks \
 	x86-64/family10/events x86-64/family10/unit_masks \
 	x86-64/family11h/events x86-64/family11h/unit_masks \
 	x86-64/family12h/events x86-64/family12h/unit_masks \
 	x86-64/family14h/events x86-64/family14h/unit_masks \
 	x86-64/family15h/events x86-64/family15h/unit_masks \
+	x86-64/generic/events x86-64/generic/unit_masks \
 	arm/xscale1/events arm/xscale1/unit_masks \
 	arm/xscale2/events arm/xscale2/unit_masks \
 	arm/armv6/events arm/armv6/unit_masks \
@@ -261,12 +247,16 @@ event_files = \
 	arm/armv7/events arm/armv7/unit_masks \
 	arm/armv7-scorpion/events arm/armv7-scorpion/unit_masks \
 	arm/armv7-scorpionmp/events arm/armv7-scorpionmp/unit_masks \
+	arm/armv7-krait/events arm/armv7-krait/unit_masks \
 	arm/armv7-ca9/events arm/armv7-ca9/unit_masks \
 	arm/armv7-ca5/events arm/armv7-ca5/unit_masks \
 	arm/armv7-ca7/events arm/armv7-ca7/unit_masks \
 	arm/armv7-ca15/events arm/armv7-ca15/unit_masks \
 	arm/mpcore/events arm/mpcore/unit_masks \
-	avr32/events avr32/unit_masks \
+	arm/armv8-pmuv3-common/events arm/armv8-pmuv3-common/unit_masks \
+	arm/armv8-xgene/events arm/armv8-xgene/unit_masks \
+	arm/armv8-ca57/events arm/armv8-ca57/unit_masks \
+	arm/armv8-ca53/events arm/armv8-ca53/unit_masks \
 	mips/20K/events mips/20K/unit_masks \
 	mips/24K/events mips/24K/unit_masks \
 	mips/25K/events mips/25K/unit_masks \
@@ -285,12 +275,15 @@ event_files = \
 	ppc/7450/events ppc/7450/unit_masks \
 	ppc/e500/events ppc/e500/unit_masks \
 	ppc/e500v2/events ppc/e500v2/unit_masks \
+	ppc/e500mc/events ppc/e500mc/unit_masks \
+	ppc/e6500/events ppc/e6500/unit_masks \
 	ppc/e300/events ppc/e300/unit_masks \
 	tile/tile64/events tile/tile64/unit_masks \
 	tile/tilepro/events tile/tilepro/unit_masks \
 	tile/tilegx/events tile/tilegx/unit_masks \
 	s390/z10/events s390/z10/unit_masks \
-	s390/z196/events s390/z196/unit_masks
+	s390/z196/events s390/z196/unit_masks \
+	s390/zEC12/events s390/zEC12/unit_masks
 
 EXTRA_DIST = $(event_files)
 all: all-am

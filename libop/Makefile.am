@@ -13,17 +13,16 @@ libop_a_SOURCES = \
 	op_cpu_type.h \
 	op_mangle.c \
 	op_mangle.h \
-	op_get_interface.c \
-	op_interface.h \
 	op_alloc_counter.c \
 	op_alloc_counter.h \
 	op_hw_config.h \
 	op_config.c \
 	op_config.h \
-	op_config_24.h \
 	op_sample_file.h \
 	op_xml_events.c \
 	op_xml_events.h \
 	op_xml_out.c \
 	op_xml_out.h \
-	op_hw_specific.h
+	op_hw_specific.h \
+	op_netburst.c \
+	op_netburst.h

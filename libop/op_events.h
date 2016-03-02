@@ -21,21 +21,15 @@ extern "C" {
 #include "op_list.h"
 
 #define EXTRA_EDGE (1U << 18)
+#define EXTRA_MIN_VAL EXTRA_EDGE
+
 #define EXTRA_ANY  (1U << 21)
 #define EXTRA_INV  (1U << 23)
 #define EXTRA_CMASK_SHIFT 24
 #define EXTRA_CMASK_MASK 0xff
+#define EXTRA_PEBS (1U << 19) /* fake, mapped to pin control, but mapped back for perf */
+#define EXTRA_NONE (1U << 22) /* mapped to enabled */
 
-/*
- * For timer based sampling some targets (e.g. s390) use a virtual
- * counter whose file system resides in /dev/oprofile/timer.  These
- * macros set the values used to define a specific timer event solely
- * used by the timer counter.
- */
-#define TIMER_EVENT_NAME           "TIMER"
-#define TIMER_EVENT_UNIT_MASK_NAME "timer_unit_mask"
-#define TIMER_EVENT_DESC           "Timer based sampling"
-#define TIMER_EVENT_VALUE          (u32)-1
 
 /** Describe an unit mask type. Events can optionally use a filter called
  * the unit mask. the mask type can be a bitmask or a discrete value */
@@ -45,8 +39,7 @@ enum unit_mask_type {
 	utm_bitmask		/**< bitmask */
 };
 
-/** up to thirty two allowed unit masks */
-#define MAX_UNIT_MASK 32
+#define MAX_UNIT_MASK 64
 
 
 /** Describe an unit mask. */
@@ -55,9 +48,11 @@ struct op_unit_mask {
 	u32 num;		/**< number of possible unit masks */
 	enum unit_mask_type unit_type_mask;
 	u32 default_mask;	/**< only the gui use it */
+	char * default_mask_name;
 	struct op_described_um {
 	        u32 extra;
 		u32 value;
+		char * name;
 		char * desc;
 	} um[MAX_UNIT_MASK];
 	struct list_head um_next; /**< next um in list */

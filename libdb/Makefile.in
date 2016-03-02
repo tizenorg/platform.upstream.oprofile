@@ -39,7 +39,6 @@ DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/binutils.m4 \
 	$(top_srcdir)/m4/builtinexpect.m4 \
-	$(top_srcdir)/m4/cellspubfdsupport.m4 \
 	$(top_srcdir)/m4/compileroption.m4 \
 	$(top_srcdir)/m4/copyifchange.m4 $(top_srcdir)/m4/docbook.m4 \
 	$(top_srcdir)/m4/extradirs.m4 \
@@ -48,7 +47,7 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/binutils.m4 \
 	$(top_srcdir)/m4/ltversion.m4 $(top_srcdir)/m4/lt~obsolete.m4 \
 	$(top_srcdir)/m4/mallocattribute.m4 \
 	$(top_srcdir)/m4/poptconst.m4 \
-	$(top_srcdir)/m4/precompiledheader.m4 $(top_srcdir)/m4/qt.m4 \
+	$(top_srcdir)/m4/precompiledheader.m4 \
 	$(top_srcdir)/m4/sstream.m4 $(top_srcdir)/m4/typedef.m4 \
 	$(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -171,7 +170,6 @@ LN_S = @LN_S@
 LTLIBOBJS = @LTLIBOBJS@
 MAKEINFO = @MAKEINFO@
 MKDIR_P = @MKDIR_P@
-MOC = @MOC@
 NM = @NM@
 NMEDIT = @NMEDIT@
 OBJDUMP = @OBJDUMP@
@@ -195,20 +193,13 @@ PFM_LIB = @PFM_LIB@
 PKG_CONFIG = @PKG_CONFIG@
 POPT_LIBS = @POPT_LIBS@
 PTRDIFF_T_TYPE = @PTRDIFF_T_TYPE@
-QT_CFLAGS = @QT_CFLAGS@
-QT_INCLUDES = @QT_INCLUDES@
-QT_LDFLAGS = @QT_LDFLAGS@
-QT_LIB = @QT_LIB@
-QT_LIBS = @QT_LIBS@
-QT_VERSION = @QT_VERSION@
 RANLIB = @RANLIB@
+RT_LIB = @RT_LIB@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 SIZE_T_TYPE = @SIZE_T_TYPE@
 STRIP = @STRIP@
-UIC = @UIC@
-UIChelp = @UIChelp@
 VERSION = @VERSION@
 XMKMF = @XMKMF@
 XML_CATALOG = @XML_CATALOG@
